@@ -1,5 +1,6 @@
 package com.github.dockerunit.discovery.consul;
 
+import static com.github.dockerunit.discovery.consul.ConsulDescriptor.CONSUL_PORT;
 import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.DOCKER_BRIDGE_IP_DEFAULT;
 import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.DOCKER_BRIDGE_IP_PROPERTY;
 
@@ -22,7 +23,11 @@ public class RegistratorDescriptor {
 		String dockerBridgeIp = System.getProperty(DOCKER_BRIDGE_IP_PROPERTY, DOCKER_BRIDGE_IP_DEFAULT);
 
 		return cmd.withHostConfig(hc)
-				.withCmd("-ip=" + dockerBridgeIp, "-cleanup", "consul://" + dockerBridgeIp + ":" + ConsulDescriptor.CONSUL_PORT);
+				.withCmd(
+//						"-ip="+ dockerBridgeIp,
+						"-cleanup",
+						"-internal",
+						"consul://" + dockerBridgeIp +  ":"+  CONSUL_PORT);
 	}
 	
 }

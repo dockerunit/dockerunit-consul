@@ -1,21 +1,7 @@
 package com.github.dockerunit.discovery.consul;
 
-import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.CONSUL_POLLING_PERIOD;
-import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.CONSUL_POLLING_PERIOD_DEFAULT;
-import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.DOCKER_BRIDGE_IP_DEFAULT;
-import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.DOCKER_BRIDGE_IP_PROPERTY;
-import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.DOCKER_HOST_PROPERTY;
-import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.SERVICE_DISCOVERY_TIMEOUT;
-import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.SERVICE_DISCOVERY_TIMEOUT_DEFAULT;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerunit.Service;
 import com.github.dockerunit.ServiceContext;
 import com.github.dockerunit.ServiceInstance;
@@ -25,6 +11,13 @@ import com.github.dockerunit.discovery.consul.annotation.EnableConsul;
 import com.github.dockerunit.internal.ServiceDescriptor;
 import com.github.dockerunit.internal.docker.DefaultDockerClientProvider;
 import com.github.dockerunit.internal.service.DefaultServiceContext;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.*;
 
 public class ConsulDiscoveryProvider implements DiscoveryProvider {
 
@@ -81,7 +74,7 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 		Set<ServiceInstance> withPorts = s.getInstances().stream()
 				.map(si -> {
 					InspectContainerResponse r = dockerClient.inspectContainerCmd(si.getContainerId()).exec();
-					return si.withPort(findPort(r, records))
+					return si.withPort(findPort(r, records).orElse(0))
 							.withIp(DOCKER_HOST)
 							.withStatus(Status.DISCOVERED)
 							.withStatusDetails("Discovered via consul + registrator");					
@@ -112,23 +105,31 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 		}
 	}
 
-	private int findPort(InspectContainerResponse response, List<ServiceRecord> records) {
-		ServiceRecord record = records.stream()
-			.filter(r -> this.matchPort(r, response))
-			.findFirst()
-			.orElseThrow(() ->  
-				new RuntimeException("Cannot find exposed port/ip for container " + response.getName()));
-		return record.getPort();
+	private Optional<Integer> findPort(InspectContainerResponse response, List<ServiceRecord> records) {
+		return records.stream()
+	        .filter(r -> matchRecord(r, response))
+		    .findFirst()
+		    .map(r -> ContainerUtils.extractMappedPort(r.getPort(), response.getNetworkSettings()))
+		    .get();
 	}
 
-	private boolean matchPort(ServiceRecord record, InspectContainerResponse r) {
-		return r.getNetworkSettings().getPorts().getBindings().values()
-                .stream()
-                .map(bindings -> Optional.ofNullable(bindings).orElse(new Binding[]{}))
-                .filter(b -> b.length > 0)
-                .map(b -> parsePort(b[0].getHostPortSpec()))
-                .anyMatch(port -> record.getPort() == port.orElse(-1));
+	private boolean matchRecord(ServiceRecord record, InspectContainerResponse r) {
+		return matchIP(record.getServiceAddress(), r) && matchPort(record.getPort(), r);
 	}
+
+
+	private boolean matchPort(int port, InspectContainerResponse r) {
+		return r.getNetworkSettings().getPorts().getBindings().entrySet().stream()
+			.map(entry -> entry.getKey().getPort())
+			.filter(p -> p == port)
+			.findFirst()
+			.isPresent();
+	}
+
+    private boolean matchIP(String address, InspectContainerResponse r) {
+		return null != address && address.equals(Optional.ofNullable(ContainerUtils.extractBridgeIpAddress(r.getNetworkSettings()).orElse(null)));
+	}
+
 
 	private Optional<Integer> parsePort(String s) {
         try {
