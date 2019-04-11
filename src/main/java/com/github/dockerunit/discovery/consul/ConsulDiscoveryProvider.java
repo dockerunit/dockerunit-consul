@@ -24,6 +24,7 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 	private static final String DOCKER_HOST = System.getProperty(DOCKER_HOST_PROPERTY, 
 			System.getProperty(DOCKER_BRIDGE_IP_PROPERTY, DOCKER_BRIDGE_IP_DEFAULT));
 	private final ConsulHttpResolver resolver;
+	private final ConsulRegistrator registrator;
 	private final DockerClient dockerClient;
 	private final int discoveryTimeout;
 	private final int consulPollingPeriod;
@@ -36,6 +37,7 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 				SERVICE_DISCOVERY_TIMEOUT_DEFAULT));
 		consulPollingPeriod = Integer.parseInt(System.getProperty(CONSUL_POLLING_PERIOD, CONSUL_POLLING_PERIOD_DEFAULT));
 		dockerClient = new DefaultDockerClientProvider().getClient();
+		registrator = new ConsulRegistrator(dockerClient, consulPollingPeriod, DOCKER_HOST, ConsulDescriptor.CONSUL_PORT);
 	}
 	
 	@Override
@@ -45,10 +47,18 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 
 	@Override
 	public ServiceContext populateRegistry(ServiceContext context) {
+		trackContext(context);
 		Set<Service> services = context.getServices().stream()
 				.map(s -> doDiscovery(s))
 				.collect(Collectors.toSet());
 		return new DefaultServiceContext(services);
+	}
+
+	private void trackContext(ServiceContext context) {
+		context.getServices().stream()
+				.forEach(svc -> svc.getInstances()
+						.stream()
+						.forEach(si -> registrator.trackContainer(si.getContainerId())));
 	}
 
 	@Override

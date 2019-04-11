@@ -12,7 +12,7 @@ import com.github.dockerunit.annotation.ExtensionMarker;
 /**
  * 
  * Allows Consul to probe each replica of your service. This enables basic
- * discovery by telling Consul about your service by means of registrator. If
+ * discovery by telling Consul about your service. If
  * you are creating an HTTP/HTTPS service, you should expose a health-check
  * endpoint and use {@linkplain WebHealthCheck}
  * 
