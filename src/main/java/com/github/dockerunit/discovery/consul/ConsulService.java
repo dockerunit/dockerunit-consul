@@ -1,15 +1,16 @@
 package com.github.dockerunit.discovery.consul;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ConsulService {
 
     @JsonProperty("Id")
@@ -32,6 +33,7 @@ public class ConsulService {
 
     @Getter
     @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ConsulCheck {
 
         @JsonProperty("Args")
@@ -39,6 +41,9 @@ public class ConsulService {
 
         @JsonProperty("HTTP")
         private String http;
+
+        @JsonProperty("TCP")
+        private String tcp;
 
         @JsonProperty("Method")
         private String method;

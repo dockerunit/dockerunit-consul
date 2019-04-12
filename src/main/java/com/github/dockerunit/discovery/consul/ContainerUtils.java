@@ -41,7 +41,7 @@ public class ContainerUtils {
 
 
     private static boolean isConsul(Container c) {
-        return Arrays.stream(c.getNames()).anyMatch(s -> s.equals(ConsulDiscoveryConfig.CONSUL_CONTAINER_NAME));
+        return Arrays.stream(c.getNames()).anyMatch(s -> s.equals("/" + ConsulDiscoveryConfig.CONSUL_CONTAINER_NAME));
     }
 
 

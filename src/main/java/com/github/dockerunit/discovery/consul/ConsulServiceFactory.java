@@ -25,6 +25,7 @@ public class ConsulServiceFactory {
     private static final String SERVICE_CHECK_HTTP = "SERVICE_CHECK_HTTP";
     private static final String SERVICE_CHECK_METHOD = "SERVICE_CHECK_METHOD";
     private static final String SERVICE_CHECK_INITIAL_STATUS = "SERVICE_CHECK_INITIAL_STATUS";
+    private static final String SERVICE_CHECK_TCP = "SERVICE_CHECK_TCP";
 
     private final DockerClient client;
 
@@ -76,6 +77,7 @@ public class ConsulServiceFactory {
         builder.interval(options.get(SERVICE_CHECK_INTERVAL));
         builder.http(interpolateCheckScript(
                 options.getOrDefault(SERVICE_CHECK_HTTP, null), address, port));
+        builder.tcp(interpolateCheckScript(options.getOrDefault(SERVICE_CHECK_TCP, null), address,port));
         builder.method(options.getOrDefault(SERVICE_CHECK_METHOD, null));
         builder.tlsSkipVerify(true);
         builder.status(options.getOrDefault(SERVICE_CHECK_INITIAL_STATUS, null));
@@ -84,8 +86,8 @@ public class ConsulServiceFactory {
     }
 
     private String interpolateCheckScript(String script, String address, Integer port) {
-        return script.replaceAll("\\$SERVICE_IP", address)
-                .replaceAll("\\$SERVICE_PORT", port.toString());
+        return  script != null ? script.replaceAll("\\$SERVICE_IP", address)
+                .replaceAll("\\$SERVICE_PORT", port.toString()) : null;
     }
 
     private Optional<Integer> extractHealthCheckPort(Map<String, String> options) {
