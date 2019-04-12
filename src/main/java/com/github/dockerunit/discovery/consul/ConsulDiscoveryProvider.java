@@ -87,7 +87,7 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 					return si.withPort(findPort(r, records).orElse(0))
 							.withIp(DOCKER_HOST)
 							.withStatus(Status.DISCOVERED)
-							.withStatusDetails("Discovered via consul + registrator");					
+							.withStatusDetails("Discovered via consul");
 				}).collect(Collectors.toSet());
 		
 		return s.withInstances(withPorts);
@@ -119,8 +119,7 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 		return records.stream()
 	        .filter(r -> matchRecord(r, response))
 		    .findFirst()
-		    .map(r -> ContainerUtils.extractMappedPort(r.getPort(), response.getNetworkSettings()))
-		    .get();
+		    .flatMap(r -> ContainerUtils.extractMappedPort(r.getPort(), response.getNetworkSettings()));
 	}
 
 	private boolean matchRecord(ServiceRecord record, InspectContainerResponse r) {
@@ -137,7 +136,7 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 	}
 
     private boolean matchIP(String address, InspectContainerResponse r) {
-		return null != address && address.equals(Optional.ofNullable(ContainerUtils.extractBridgeIpAddress(r.getNetworkSettings()).orElse(null)));
+		return null != address && address.equals(ContainerUtils.extractBridgeIpAddress(r.getNetworkSettings()).orElse(null));
 	}
 
 

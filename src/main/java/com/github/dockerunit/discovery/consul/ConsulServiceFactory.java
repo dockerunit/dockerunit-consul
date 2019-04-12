@@ -84,8 +84,8 @@ public class ConsulServiceFactory {
     }
 
     private String interpolateCheckScript(String script, String address, Integer port) {
-        return script.replaceAll("$SERVICE_IP", address)
-                .replaceAll("$SERVICE_PORT", port.toString());
+        return script.replaceAll("\\$SERVICE_IP", address)
+                .replaceAll("\\$SERVICE_PORT", port.toString());
     }
 
     private Optional<Integer> extractHealthCheckPort(Map<String, String> options) {
@@ -120,7 +120,7 @@ public class ConsulServiceFactory {
         if (! (s.lastIndexOf("_") > (s.indexOf("_") + 1))) {
             return null;
         }
-        return s.substring(s.indexOf("_") + 1, s.lastIndexOf("_") - 1);
+        return s.substring(s.indexOf("_") + 1, s.lastIndexOf("_"));
     }
 
 }

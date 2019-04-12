@@ -29,8 +29,7 @@ public class ContainerUtils {
                 .map(Map.Entry::getValue)
                 .filter(bindings -> bindings != null && bindings.length > 0)
                 .findFirst()
-                .map(bindings ->  parsePort(bindings[0].getHostPortSpec())
-                        .orElseThrow(() -> new RuntimeException(String.format("Could not parse mapping for exposed port ", port))));
+                .flatMap(bindings ->  parsePort(bindings[0].getHostPortSpec()));
     }
 
     public static Container getConsulContainer() {
