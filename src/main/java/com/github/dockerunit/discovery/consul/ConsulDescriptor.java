@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.*;
 
 @Named("consul")
-@Image("consul:1.0.0")
+@Image("consul:1.4.4")
 public class ConsulDescriptor {
 
 
