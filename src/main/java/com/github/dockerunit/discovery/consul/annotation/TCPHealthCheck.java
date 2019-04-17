@@ -6,7 +6,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.github.dockerunit.discovery.consul.annotation.impl.EnableConsulExtensionInterpreter;
+import com.github.dockerunit.discovery.consul.annotation.impl.TCPHealthCheckExtensionInterpreter;
 import com.github.dockerunit.annotation.ExtensionMarker;
 
 /**
@@ -19,8 +19,8 @@ import com.github.dockerunit.annotation.ExtensionMarker;
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-@ExtensionMarker(EnableConsulExtensionInterpreter.class)
-public @interface EnableConsul {
+@ExtensionMarker(TCPHealthCheckExtensionInterpreter.class)
+public @interface TCPHealthCheck {
 
 	/**
 	 * The port that is exposed by the container (not the one it is mapped to on the
@@ -28,7 +28,7 @@ public @interface EnableConsul {
 	 * 
 	 * @return the port number
 	 */
-	int exposedPort() default 80;
+	int port() default 80;
 	
 	/**
 	 * The length of the interval (in seconds) Consul will wait before re-checking the service state.

@@ -54,7 +54,7 @@ public class ConsulDescriptor {
 
         return cmd.withHostConfig(hc)
                 .withExposedPorts(ports)
-                .withCmd("sh", "-c", "consul agent -dev -client=0.0.0.0 -enable-script-checks -dns-port=53");
+                .withCmd("sh", "-c", "exec consul agent -dev -client=0.0.0.0 -enable-script-checks -dns-port=53");
 
 
     }

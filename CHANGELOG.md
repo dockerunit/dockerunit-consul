@@ -9,6 +9,16 @@ and this project adheres to [semantic versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump docker-java to 3.1.1
+- Rewritten discovery to utilise containers internal IPs and ports
+- Renamed `@EnableConsul` to `@TCPHealthCheck` and its property `exposedPort` to `port`
+- Renamed property `exposedPort` in `@WebHealthCheck` to `port`
+- `@UseConsulDns` now sets the Consul container IP (instead of the Docker bridge one) as primary DNS for your containers and this makes it usable on MacOS 
+
+
+### Removed
+
+- Goodbye to gliderlabs/registrator
+- Goodbye to `qzagarese` in package names :-) 
 
 ## 1.0.1 [01 Mar 2019]
 

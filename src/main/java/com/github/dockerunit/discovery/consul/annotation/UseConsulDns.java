@@ -23,8 +23,4 @@ import com.github.dockerunit.discovery.consul.annotation.impl.UseConsulDnsExtens
 @Retention(RUNTIME)
 @Target(TYPE)
 @ExtensionMarker(UseConsulDnsExtensionInterpreter.class)
-public @interface UseConsulDns {
-
-    
-    
-}
+public @interface UseConsulDns { }

@@ -7,7 +7,6 @@ import java.util.List;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerunit.annotation.ExtensionInterpreter;
 import com.github.dockerunit.discovery.consul.annotation.WebHealthCheck;
-import com.github.dockerunit.discovery.consul.annotation.WebHealthCheck.WebProtocol;
 import com.github.dockerunit.internal.ServiceDescriptor;
 
 public class WebHealthCheckExtensionInterpreter implements ExtensionInterpreter<WebHealthCheck> {
@@ -20,7 +19,7 @@ public class WebHealthCheckExtensionInterpreter implements ExtensionInterpreter<
 
 	@Override
 	public CreateContainerCmd build(ServiceDescriptor td, CreateContainerCmd cmd, WebHealthCheck whc) {
-		final String serviceNameEnv = SERVICE_PREFIX + whc.exposedPort() + SERVICE_NAME_SUFFIX + "=" + td.getNamed().value();
+		final String serviceNameEnv = SERVICE_PREFIX + whc.port() + SERVICE_NAME_SUFFIX + "=" + td.getNamed().value();
 		final String serviceCheckIntervalEnv = SERVICE_CHECK_INTERVAL + "=" + whc.pollingInterval() + "s";
 		final String serviceCheckEnv = SERVICE_CHECK_HTTP + "=" +whc.protocol().toString().toLowerCase()
 				+ "://$SERVICE_IP:$SERVICE_PORT"

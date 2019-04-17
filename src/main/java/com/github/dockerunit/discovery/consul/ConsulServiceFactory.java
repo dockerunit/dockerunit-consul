@@ -2,10 +2,15 @@ package com.github.dockerunit.discovery.consul;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerunit.discovery.consul.annotation.EnableConsul;
+import com.github.dockerunit.discovery.consul.annotation.TCPHealthCheck;
 import com.github.dockerunit.discovery.consul.annotation.WebHealthCheck;
 
-import java.util.*;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ConsulServiceFactory {
@@ -14,7 +19,7 @@ public class ConsulServiceFactory {
     private static final String SERVICE_NAME_SUFFIX = "_NAME";
     private static final String DEFINE_HEALTH_CHECK_MSG = "Make sure you have defined a "
             + "health-check by using @" + WebHealthCheck.class.getSimpleName()
-            + " or @" + EnableConsul.class.getSimpleName();
+            + " or @" + TCPHealthCheck.class.getSimpleName();
 
     private static final String SVC_HEALTH_CHECK_PORT_NOT_FOUND_MSG = "No health-check port definition detected" + DEFINE_HEALTH_CHECK_MSG;
     private static final String SVC_NAME_NOT_FOUND_ERROR_MSG = "No service name detected. " + DEFINE_HEALTH_CHECK_MSG;
@@ -37,10 +42,12 @@ public class ConsulServiceFactory {
         InspectContainerResponse r = client.inspectContainerCmd(containerId).exec();
 
         Map<String, String> options = buildKeyValueMap(r.getConfig().getLabels(), r.getConfig().getEnv());
-
-
-
-        String svcName = findName(options).orElseThrow(() -> new RuntimeException(SVC_NAME_NOT_FOUND_ERROR_MSG));
+        String svcName = null;
+        try {
+            svcName = URLEncoder.encode(findName(options).orElseThrow(() -> new RuntimeException(SVC_NAME_NOT_FOUND_ERROR_MSG)), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Invalid service name detected.", e);
+        }
         Integer port = extractHealthCheckPort(options).orElseThrow(() -> new RuntimeException(SVC_HEALTH_CHECK_PORT_NOT_FOUND_MSG));
         String address = ContainerUtils.extractBridgeIpAddress(r.getNetworkSettings())
                 .orElseThrow(() -> new RuntimeException(SVC_ADDRESS_NOT_FOUND_ERROR_MSG));
@@ -66,7 +73,7 @@ public class ConsulServiceFactory {
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         Arrays.stream(env)
-                .filter(s -> s.indexOf("=") != -1)
+                .filter(s -> s.contains("="))
                 .map(s -> s.split("="))
                 .forEach(kv -> keyValueMap.put(kv[0], kv[1]));
         return keyValueMap;
@@ -86,7 +93,7 @@ public class ConsulServiceFactory {
     }
 
     private String interpolateCheckScript(String script, String address, Integer port) {
-        return  script != null ? script.replaceAll("\\$SERVICE_IP", address)
+        return script != null ? script.replaceAll("\\$SERVICE_IP", address)
                 .replaceAll("\\$SERVICE_PORT", port.toString()) : null;
     }
 

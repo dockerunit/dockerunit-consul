@@ -15,6 +15,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 public class ConsulRegistrator {
 
@@ -22,11 +24,11 @@ public class ConsulRegistrator {
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String APPLICATION_JSON = "application/json";
     private final DockerClient client;
-    private final Map<String, ContainerTracker> trackers = new HashMap<>();
-    private final Map<String, ConsulService> services = new HashMap<>();
+    private final Map<String, ContainerTracker> trackers = new ConcurrentHashMap<>();
+    private final Map<String, ConsulService> services = new ConcurrentHashMap<>();
 
     private final int pollingPeriod;
-    private final  HttpClient httpClient;
+    private final HttpClient httpClient;
     private final String host;
     private final int port;
     private final ObjectWriter objectWriter;
@@ -39,7 +41,7 @@ public class ConsulRegistrator {
         this.host = consulHost;
         this.port = consulPort;
         httpClient = HttpClientBuilder.create().build();
-        objectWriter = new ObjectMapper().writer().forType(ConsulService.class);
+        objectWriter = new ObjectMapper().writerFor(ConsulService.class);
         svcFactory = new ConsulServiceFactory(client);
     }
 
@@ -66,7 +68,7 @@ public class ConsulRegistrator {
     private void registerSvc(ConsulService svc) {
         String errorMessage = "Could not register container " + svc.getContainerId() + " on Consul.";
         try {
-            executePut("/v1/agent/service/register", objectWriter.writeValueAsString(svc), errorMessage);
+            executePut("/v1/agent/service/register", objectWriter.writeValueAsString(svc), () -> errorMessage);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(errorMessage, e);
         }
@@ -74,10 +76,10 @@ public class ConsulRegistrator {
 
     private void deregisterSvc(ConsulService svc) {
         String errorMessage = "Could not deregister container " + svc.getContainerId() + " from Consul.";
-        executePut("/v1/agent/service/deregister/" + svc.getId(), null, errorMessage);
+        executePut("/v1/agent/service/deregister/" + svc.getId(), null, () -> errorMessage);
     }
 
-    private void executePut(String endpoint, String body, String errorMessage) {
+    private void executePut(String endpoint, String body, Supplier<String> errorMessage) {
         HttpPut put = new HttpPut("http://" + host + ":" + port + endpoint);
         put.setHeader(ACCEPT, APPLICATION_JSON);
         put.setHeader(CONTENT_TYPE, APPLICATION_JSON);
@@ -86,7 +88,7 @@ public class ConsulRegistrator {
             try {
                 put.setEntity(new StringEntity(body));
             } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(errorMessage, e);
+                throw new RuntimeException(errorMessage.get(), e);
             }
         }
 
@@ -94,10 +96,11 @@ public class ConsulRegistrator {
         try {
             response = httpClient.execute(put);
         } catch (Exception e) {
-            throw new RuntimeException(errorMessage, e);
+            throw new RuntimeException(errorMessage.get(), e);
         }
-        if(response == null || response.getStatusLine().getStatusCode() > 299) {
-            throw new RuntimeException(errorMessage);
+        int statusCode = response.getStatusLine().getStatusCode();
+        if(statusCode != 200) {
+            throw new RuntimeException(errorMessage.get() + " Unexpected status code " + statusCode);
         }
     }
 

@@ -7,7 +7,7 @@ import com.github.dockerunit.ServiceContext;
 import com.github.dockerunit.ServiceInstance;
 import com.github.dockerunit.ServiceInstance.Status;
 import com.github.dockerunit.discovery.DiscoveryProvider;
-import com.github.dockerunit.discovery.consul.annotation.EnableConsul;
+import com.github.dockerunit.discovery.consul.annotation.TCPHealthCheck;
 import com.github.dockerunit.internal.ServiceDescriptor;
 import com.github.dockerunit.internal.docker.DefaultDockerClientProvider;
 import com.github.dockerunit.internal.service.DefaultServiceContext;
@@ -95,10 +95,10 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 
 	private int extractInitialDelay(ServiceDescriptor descriptor) {
 	    return descriptor.getOptions().stream()
-	        .filter(EnableConsul.class::isInstance)
+	        .filter(TCPHealthCheck.class::isInstance)
 	        .findFirst()
-	        .map(EnableConsul.class::cast)
-	        .map(EnableConsul::initialDelay)
+	        .map(TCPHealthCheck.class::cast)
+	        .map(TCPHealthCheck::initialDelay)
 	        .orElse(0);
     }
 

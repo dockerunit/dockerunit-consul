@@ -41,7 +41,7 @@ public @interface WebHealthCheck {
 	 * 
 	 * @return the port number
 	 */
-	int exposedPort() default 80;
+	int port() default 80;
 	
 	/**
 	 * The length of the interval (in seconds) Consul will wait before re-checking the service state.
