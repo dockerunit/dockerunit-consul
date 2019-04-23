@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.Container;
 import org.apache.http.HttpResponse;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
@@ -16,13 +18,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 public class ConsulRegistrator {
 
     public static final String ACCEPT = "Accept";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String APPLICATION_JSON = "application/json";
+
+    private static final Logger logger = Logger.getLogger(ConsulRegistrator.class.getSimpleName());
+
     private final DockerClient client;
     private final Map<String, ContainerTracker> trackers = new ConcurrentHashMap<>();
     private final Map<String, ConsulService> services = new ConcurrentHashMap<>();
@@ -66,20 +73,26 @@ public class ConsulRegistrator {
     }
 
     private void registerSvc(ConsulService svc) {
-        String errorMessage = "Could not register container " + svc.getContainerId() + " on Consul.";
+        Supplier<String> errorMessage = () -> "Could not register container " + svc.getContainerId() + " on Consul.";
         try {
-            executePut("/v1/agent/service/register", objectWriter.writeValueAsString(svc), () -> errorMessage);
+            executePut("/v1/agent/service/register", objectWriter.writeValueAsString(svc),
+                    errorMessage,
+                    ex ->  {
+                        throw new RuntimeException(errorMessage.get(), ex);
+                    });
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(errorMessage, e);
+            throw new RuntimeException(errorMessage.get(), e);
         }
     }
 
     private void deregisterSvc(ConsulService svc) {
-        String errorMessage = "Could not deregister container " + svc.getContainerId() + " from Consul.";
-        executePut("/v1/agent/service/deregister/" + svc.getId(), null, () -> errorMessage);
+        Supplier<String> errorMessage = () ->"Could not deregister container " + svc.getContainerId() + " from Consul.";
+        executePut("/v1/agent/service/deregister/" + svc.getId(), null,
+                errorMessage,
+                ex -> logger.info("Consul has already stopped. Service de-registration aborted."));
     }
 
-    private void executePut(String endpoint, String body, Supplier<String> errorMessage) {
+    private void executePut(String endpoint, String body, Supplier<String> errorMessage, Consumer<Exception> onFailure) {
         HttpPut put = new HttpPut("http://" + host + ":" + port + endpoint);
         put.setHeader(ACCEPT, APPLICATION_JSON);
         put.setHeader(CONTENT_TYPE, APPLICATION_JSON);
@@ -92,15 +105,18 @@ public class ConsulRegistrator {
             }
         }
 
-        final HttpResponse response;
+        HttpResponse response = null;
         try {
             response = httpClient.execute(put);
         } catch (Exception e) {
-            throw new RuntimeException(errorMessage.get(), e);
+            onFailure.accept(e);
         }
-        int statusCode = response.getStatusLine().getStatusCode();
-        if(statusCode != 200) {
-            throw new RuntimeException(errorMessage.get() + " Unexpected status code " + statusCode);
+
+        if (response != null) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != 200) {
+                throw new RuntimeException(errorMessage.get() + " Unexpected status code " + statusCode);
+            }
         }
     }
 

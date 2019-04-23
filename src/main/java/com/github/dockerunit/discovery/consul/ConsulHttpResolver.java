@@ -1,28 +1,26 @@
 package com.github.dockerunit.discovery.consul;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.dockerunit.discovery.consul.ServiceRecord.Check;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.dockerunit.discovery.consul.ServiceRecord.Check;
-
-import io.vertx.core.Vertx;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 public class ConsulHttpResolver {
 
-	private final Vertx vertx = Vertx.vertx();
 	private final HttpClient httpClient;
 	private final String host;
 	private final int port;
@@ -45,43 +43,59 @@ public class ConsulHttpResolver {
 
 	public List<ServiceRecord> resolveService(String serviceName, int expectedRecords, int timeoutInSeconds,
 			int frequencyInSeconds, int initialDelayInSeconds) {
-	    try {
-	        //TODO Rewrite this by using a proper library
-            Thread.sleep(initialDelayInSeconds * 1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException("Failure occurred during the discovery of service " + serviceName);
-        }
-		BiConsumer<CompletableFuture<List<ServiceRecord>>, Throwable> errorConsumer = (fut, t) -> {
+
+	    CompletableFuture<List<ServiceRecord>> result = new CompletableFuture<>();
+	    TimerTask discovery = new TimerTask() {
+			@Override
+			public void run() {
+				BiConsumer<CompletableFuture<List<ServiceRecord>>, Throwable> errorConsumer = (fut, t) -> {
+				};
+				BiConsumer<CompletableFuture<List<ServiceRecord>>, List<ServiceRecord>> matchingConsumer = (fut, records) -> fut
+						.complete(records);
+				try {
+					List<ServiceRecord> serviceRecords = performQuerying(serviceName, expectedRecords,
+							timeoutInSeconds, frequencyInSeconds, errorConsumer, matchingConsumer);
+					result.complete(serviceRecords);
+				} catch (Exception e) {
+					result.completeExceptionally(e.getCause());
+				}
+			}
 		};
-		BiConsumer<CompletableFuture<List<ServiceRecord>>, List<ServiceRecord>> matchingConsumer = (fut, records) -> fut
-				.complete(records);
-		return performQuerying(serviceName, expectedRecords, timeoutInSeconds, frequencyInSeconds, errorConsumer,
-				matchingConsumer);
+
+		Timer timer = new Timer();
+		timer.schedule(discovery, initialDelayInSeconds * 1000);
+		return result.join();
 	}
 
-	private <T> T performQuerying(String serviceName, int expectedRecords, int timeoutInSeconds, int frequencyInSeconds,
+	private <T> T performQuerying(String serviceName, int expectedRecords, int timeoutInSeconds, int pollingPeriodInSeconds,
 			BiConsumer<CompletableFuture<T>, Throwable> errorConsumer,
 			BiConsumer<CompletableFuture<T>, List<ServiceRecord>> matchingConsumer) {
 		CompletableFuture<T> result = new CompletableFuture<>();
 		final AtomicInteger counter = new AtomicInteger(0);
-		vertx.setPeriodic(frequencyInSeconds * 1000, timerId -> {
-			List<ServiceRecord> records = null;
+
+		TimerTask repeatedTask = new TimerTask() {
+			public void run() {
+				List<ServiceRecord> records = null;
 				try {
 					records = getHealthyRecords(serviceName);
 				} catch (Exception e) {
 					result.completeExceptionally(e);
 				}
 				int counterValue = counter.incrementAndGet();
-				if(records !=  null && records.size() == expectedRecords) {
-					vertx.cancelTimer(timerId);
+				if (records != null && records.size() == expectedRecords) {
+					this.cancel();
 					matchingConsumer.accept(result, records);
 				} else {
-					if (timedout(timeoutInSeconds, frequencyInSeconds, counterValue)) {
-						vertx.cancelTimer(timerId);
+					if (timedout(timeoutInSeconds, pollingPeriodInSeconds, counterValue)) {
+						this.cancel();
 						result.completeExceptionally(new RuntimeException("Discovery timed out."));
 					}
 				}
-			});
+			}
+		};
+
+		Timer timer = new Timer("consul-polling-" + serviceName);
+		timer.scheduleAtFixedRate(repeatedTask, 0, pollingPeriodInSeconds * 1000);
 
 		result.exceptionally(ex -> {
 			throw new RuntimeException("Discovery/cleanup failed for service " + serviceName);
