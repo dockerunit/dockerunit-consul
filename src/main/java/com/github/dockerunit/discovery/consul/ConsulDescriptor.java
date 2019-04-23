@@ -18,11 +18,11 @@ import java.util.logging.Logger;
 import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.*;
 
 @Named("consul")
-@Image("consul:1.0.0")
+@Image("consul:1.4.4")
 public class ConsulDescriptor {
 
 
-    static final int CONSUL_DNS_PORT = 8600;
+    static final int CONSUL_DNS_PORT = 53;
     static final int CONSUL_PORT = 8500;
 
     private static final Logger logger = Logger.getLogger(ConsulDescriptor.class.getSimpleName());
@@ -43,7 +43,7 @@ public class ConsulDescriptor {
         boolean enableDnsFlag = Boolean.parseBoolean(System.getProperty(CONSUL_DNS_ENABLED_PROPERTY, CONSUL_DNS_ENABLED_DEFAULT));
 
         if(enableDnsFlag) {
-            activateDns(ports, bindings);
+            activateDns(ports);
         } else {
             logger.warning("Consul DNS has been disabled. Usages of @" + UseConsulDns.class.getSimpleName() + " will be ignored.");
         }
@@ -54,18 +54,13 @@ public class ConsulDescriptor {
 
         return cmd.withHostConfig(hc)
                 .withExposedPorts(ports)
-                .withCmd("agent", "-dev", "-client=0.0.0.0", "-enable-script-checks");
+                .withCmd("sh", "-c", "exec consul agent -dev -client=0.0.0.0 -enable-script-checks -dns-port=53");
+
+
     }
 
-    private void activateDns(List<ExposedPort> ports, Ports bindings) {
+    private void activateDns(List<ExposedPort> ports) {
         ExposedPort dnsPort = ExposedPort.udp(CONSUL_DNS_PORT);
         ports.add(dnsPort);
-
-        int dnsBridgePort = Integer.parseInt(System.getProperty(CONSUL_DNS_PORT_BRIDGE_BINDING,
-                CONSUL_DNS_PORT_BRIDGE_BINDING_DEFAULT));
-
-        bindings.bind(dnsPort, Binding.bindIpAndPort(
-                System.getProperty(DOCKER_BRIDGE_IP_PROPERTY, DOCKER_BRIDGE_IP_DEFAULT),
-                dnsBridgePort));
     }
 }

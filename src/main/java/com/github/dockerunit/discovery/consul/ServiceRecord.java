@@ -23,6 +23,9 @@ public class ServiceRecord {
 	
 	@JsonProperty("ServicePort")
 	private final int port;
+
+	@JsonProperty("ServiceAddress")
+	private String serviceAddress;
 	
 	@JsonProperty("Service")
 	private final Service service;
