@@ -20,7 +20,8 @@ public class TCPHealthCheckExtensionInterpreter implements ExtensionInterpreter<
 
 	@Override
 	public CreateContainerCmd build(ServiceDescriptor td, CreateContainerCmd cmd, TCPHealthCheck ec) {
-		final String serviceNameEnv = SERVICE_PREFIX + ec.port() + SERVICE_NAME_SUFFIX + "=" + td.getNamed().value();
+		String svcName = td.getSvcDefinition().value().length() > 0 ? td.getSvcDefinition().value() : td.getSvcDefinition().name();
+		final String serviceNameEnv = SERVICE_PREFIX + ec.port() + SERVICE_NAME_SUFFIX + "=" + svcName;
 		final String serviceCheckIntervalEnv = SERVICE_CHECK_INTERVAL + "=" + ec.pollingInterval() + "s";
 		final String serviceInitialStatusEnv = SERVICE_CHECK_INITIAL_STATUS + "=" + ec.checkInitialStatus().toString().toLowerCase();
 		final String serviceCheckTCP = SERVICE_CHECK_TCP + "=$SERVICE_IP" + ":" + ec.port();

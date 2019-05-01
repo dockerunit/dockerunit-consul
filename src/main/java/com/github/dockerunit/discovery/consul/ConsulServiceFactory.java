@@ -22,10 +22,10 @@ public class ConsulServiceFactory {
             + " or @" + TCPHealthCheck.class.getSimpleName();
 
     private static final String SVC_HEALTH_CHECK_PORT_NOT_FOUND_MSG = "No health-check port definition detected" + DEFINE_HEALTH_CHECK_MSG;
-    private static final String SVC_NAME_NOT_FOUND_ERROR_MSG = "No service name detected. " + DEFINE_HEALTH_CHECK_MSG;
+    private static final String SVC_NAME_NOT_FOUND_ERROR_MSG = "No svc name detected. " + DEFINE_HEALTH_CHECK_MSG;
 
     private static final String DOCKERUNIT = "dockerunit";
-    private static final String SVC_ADDRESS_NOT_FOUND_ERROR_MSG = "No service address detected. The container might not be running due an internal error.";
+    private static final String SVC_ADDRESS_NOT_FOUND_ERROR_MSG = "No svc address detected. The container might not be running due an internal error.";
     private static final String SERVICE_CHECK_INTERVAL = "SERVICE_CHECK_INTERVAL";
     private static final String SERVICE_CHECK_HTTP = "SERVICE_CHECK_HTTP";
     private static final String SERVICE_CHECK_METHOD = "SERVICE_CHECK_METHOD";
@@ -46,7 +46,7 @@ public class ConsulServiceFactory {
         try {
             svcName = URLEncoder.encode(findName(options).orElseThrow(() -> new RuntimeException(SVC_NAME_NOT_FOUND_ERROR_MSG)), "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Invalid service name detected.", e);
+            throw new RuntimeException("Invalid svc name detected.", e);
         }
         Integer port = extractHealthCheckPort(options).orElseThrow(() -> new RuntimeException(SVC_HEALTH_CHECK_PORT_NOT_FOUND_MSG));
         String address = ContainerUtils.extractBridgeIpAddress(r.getNetworkSettings())

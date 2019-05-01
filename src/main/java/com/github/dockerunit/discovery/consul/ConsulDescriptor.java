@@ -6,8 +6,7 @@ import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerunit.annotation.ContainerBuilder;
-import com.github.dockerunit.annotation.Image;
-import com.github.dockerunit.annotation.Named;
+import com.github.dockerunit.annotation.Svc;
 import com.github.dockerunit.discovery.consul.annotation.UseConsulDns;
 
 import java.util.ArrayList;
@@ -15,10 +14,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.*;
+import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.CONSUL_DNS_ENABLED_DEFAULT;
+import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.CONSUL_DNS_ENABLED_PROPERTY;
 
-@Named("consul")
-@Image("consul:1.4.4")
+@Svc(name = "consul", image = "consul:1.4.4")
 public class ConsulDescriptor {
 
 

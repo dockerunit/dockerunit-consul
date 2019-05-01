@@ -1,10 +1,10 @@
 package com.github.dockerunit.discovery.consul;
 
-import com.github.dockerunit.annotation.Use;
+import com.github.dockerunit.annotation.WithSvc;
 
 import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.CONSUL_CONTAINER_NAME;
 
-@Use(service=ConsulDescriptor.class, containerPrefix=CONSUL_CONTAINER_NAME)
+@WithSvc(svc =ConsulDescriptor.class, containerPrefix=CONSUL_CONTAINER_NAME)
 public class ConsulDiscoveryConfig {
 
 	public static final String DOCKER_BRIDGE_IP_PROPERTY = "docker.bridge.ip";
