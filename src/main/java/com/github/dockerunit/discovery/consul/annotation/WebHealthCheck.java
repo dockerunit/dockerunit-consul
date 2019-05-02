@@ -1,12 +1,12 @@
 package com.github.dockerunit.discovery.consul.annotation;
 
+import com.github.dockerunit.core.annotation.ExtensionMarker;
+import com.github.dockerunit.discovery.consul.annotation.impl.WebHealthCheckExtensionInterpreter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.github.dockerunit.discovery.consul.annotation.impl.WebHealthCheckExtensionInterpreter;
-import com.github.dockerunit.annotation.ExtensionMarker;
 
 /**
  * 

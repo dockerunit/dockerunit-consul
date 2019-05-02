@@ -2,15 +2,14 @@ package com.github.dockerunit.discovery.consul;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerunit.Service;
-import com.github.dockerunit.ServiceContext;
-import com.github.dockerunit.ServiceInstance;
-import com.github.dockerunit.ServiceInstance.Status;
-import com.github.dockerunit.discovery.DiscoveryProvider;
+import com.github.dockerunit.core.Service;
+import com.github.dockerunit.core.ServiceContext;
+import com.github.dockerunit.core.ServiceInstance;
+import com.github.dockerunit.core.discovery.DiscoveryProvider;
+import com.github.dockerunit.core.internal.ServiceDescriptor;
+import com.github.dockerunit.core.internal.docker.DefaultDockerClientProvider;
+import com.github.dockerunit.core.internal.service.DefaultServiceContext;
 import com.github.dockerunit.discovery.consul.annotation.TCPHealthCheck;
-import com.github.dockerunit.internal.ServiceDescriptor;
-import com.github.dockerunit.internal.docker.DefaultDockerClientProvider;
-import com.github.dockerunit.internal.service.DefaultServiceContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +75,7 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 					discoveryTimeout, consulPollingPeriod, extractInitialDelay(s.getDescriptor()));
 		} catch (Exception e) {
 			return s.withInstances(s.getInstances().stream()
-					.map(i -> i.withStatus(Status.ABORTED)
+					.map(i -> i.withStatus(ServiceInstance.Status.ABORTED)
 							.withStatusDetails(e.getMessage()))
 					.collect(Collectors.toSet()));
 		}
@@ -86,7 +85,7 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 					InspectContainerResponse r = dockerClient.inspectContainerCmd(si.getContainerId()).exec();
 					return si.withPort(findPort(r, records).orElse(0))
 							.withIp(DOCKER_HOST)
-							.withStatus(Status.DISCOVERED)
+							.withStatus(ServiceInstance.Status.DISCOVERED)
 							.withStatusDetails("Discovered via consul");
 				}).collect(Collectors.toSet());
 		
@@ -109,7 +108,7 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
 			return current;
 		} catch (Exception e) {
 			return current.withInstances(current.getInstances().stream()
-				.map(si -> si.withStatus(Status.TERMINATION_FAILED)
+				.map(si -> si.withStatus(ServiceInstance.Status.TERMINATION_FAILED)
 						.withStatusDetails(e.getMessage()))
 				.collect(Collectors.toSet()));
 		}

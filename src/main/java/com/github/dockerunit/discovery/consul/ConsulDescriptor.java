@@ -5,8 +5,8 @@ import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
-import com.github.dockerunit.annotation.ContainerBuilder;
-import com.github.dockerunit.annotation.Svc;
+import com.github.dockerunit.core.annotation.ContainerBuilder;
+import com.github.dockerunit.core.annotation.Svc;
 import com.github.dockerunit.discovery.consul.annotation.UseConsulDns;
 
 import java.util.ArrayList;
