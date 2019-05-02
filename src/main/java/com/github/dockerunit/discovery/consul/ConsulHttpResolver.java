@@ -98,7 +98,7 @@ public class ConsulHttpResolver {
 		timer.scheduleAtFixedRate(repeatedTask, 0, pollingPeriodInSeconds * 1000);
 
 		result.exceptionally(ex -> {
-			throw new RuntimeException("Discovery/cleanup failed for service " + serviceName);
+			throw new RuntimeException("Discovery/cleanup failed for svc " + serviceName);
 		});
 		return result.join();
 	}

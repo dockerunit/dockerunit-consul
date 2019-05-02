@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.github.dockerunit</groupId>
     <artifactId>dockerunit-parent</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>dockerunit-consul</artifactId>
@@ -30,8 +30,7 @@
     </developer>
   </developers>
   <properties>
-    <dockerunit.core.version>1.1.0-SNAPSHOT</dockerunit.core.version>
-    <vertx.core.version>3.5.4</vertx.core.version>
+    <dockerunit.core.version>2.0.0-SNAPSHOT</dockerunit.core.version>
     <lombok.version>1.16.6</lombok.version>
   </properties>
 

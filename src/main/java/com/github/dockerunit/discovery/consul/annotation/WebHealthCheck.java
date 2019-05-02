@@ -11,7 +11,7 @@ import com.github.dockerunit.annotation.ExtensionMarker;
 /**
  * 
  * Allows the configuration of a health check endpoint so that Consul
- * can verify the state of each of the service replicas.
+ * can verify the state of each of the svc replicas.
  *
  */
 @Target({ElementType.TYPE})
@@ -20,7 +20,7 @@ import com.github.dockerunit.annotation.ExtensionMarker;
 public @interface WebHealthCheck {
 
 	/**
-	 * The path of the health check endpoint in your service.
+	 * The path of the health check endpoint in your svc.
 	 * Default is {@literal /health-check}
 	 * 
 	 * @return the health check endpoint
@@ -44,7 +44,7 @@ public @interface WebHealthCheck {
 	int port() default 80;
 	
 	/**
-	 * The length of the interval (in seconds) Consul will wait before re-checking the service state.
+	 * The length of the interval (in seconds) Consul will wait before re-checking the svc state.
 	 * Default is 1 second.
 	 * 
 	 * @return the interval in seconds

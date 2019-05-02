@@ -11,9 +11,9 @@ import com.github.dockerunit.annotation.ExtensionMarker;
 
 /**
  * 
- * Allows Consul to probe each replica of your service. This enables basic
- * discovery by telling Consul about your service. If
- * you are creating an HTTP/HTTPS service, you should expose a health-check
+ * Allows Consul to probe each replica of your svc. This enables basic
+ * discovery by telling Consul about your svc. If
+ * you are creating an HTTP/HTTPS svc, you should expose a health-check
  * endpoint and use {@linkplain WebHealthCheck}
  * 
  */
@@ -31,7 +31,7 @@ public @interface TCPHealthCheck {
 	int port() default 80;
 	
 	/**
-	 * The length of the interval (in seconds) Consul will wait before re-checking the service state.
+	 * The length of the interval (in seconds) Consul will wait before re-checking the svc state.
 	 * Default is 1 second.
 	 * 
 	 * @return the interval in seconds
@@ -49,7 +49,7 @@ public @interface TCPHealthCheck {
 	
 	
 	/**
-	 * The initial status for the Consul check associated to this service. Default is PASSING.
+	 * The initial status for the Consul check associated to this svc. Default is PASSING.
 	 * 
 	 * @return the status of the check
 	 */
