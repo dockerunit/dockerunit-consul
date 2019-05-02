@@ -19,9 +19,7 @@ public class WebHealthCheckExtensionInterpreter implements ExtensionInterpreter<
 
 	@Override
 	public CreateContainerCmd build(ServiceDescriptor sd, CreateContainerCmd cmd, WebHealthCheck whc) {
-		final String svcName = sd.getSvcDefinition().value().length() > 0 ?
-				sd.getSvcDefinition().value() : sd.getSvcDefinition().name();
-		final String serviceNameEnv = SERVICE_PREFIX + whc.port() + SERVICE_NAME_SUFFIX + "=" + svcName;
+		final String serviceNameEnv = SERVICE_PREFIX + whc.port() + SERVICE_NAME_SUFFIX + "=" + sd.getSvcName();
 		final String serviceCheckIntervalEnv = SERVICE_CHECK_INTERVAL + "=" + whc.pollingInterval() + "s";
 		final String serviceCheckEnv = SERVICE_CHECK_HTTP + "=" +whc.protocol().toString().toLowerCase()
 				+ "://$SERVICE_IP:$SERVICE_PORT"
