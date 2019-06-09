@@ -31,7 +31,7 @@
   </developers>
   <properties>
     <dockerunit.core.version>2.0.0-SNAPSHOT</dockerunit.core.version>
-    <lombok.version>1.16.6</lombok.version>
+    <lombok.version>1.18.8</lombok.version>
   </properties>
 
   <licenses>
