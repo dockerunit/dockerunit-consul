@@ -1,13 +1,13 @@
 package com.github.dockerunit.discovery.consul.annotation;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import com.github.dockerunit.core.annotation.ExtensionMarker;
+import com.github.dockerunit.discovery.consul.annotation.impl.TCPHealthCheckExtensionInterpreter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.github.dockerunit.discovery.consul.annotation.impl.TCPHealthCheckExtensionInterpreter;
-import com.github.dockerunit.annotation.ExtensionMarker;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * 

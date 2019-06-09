@@ -1,14 +1,14 @@
 package com.github.dockerunit.discovery.consul.annotation;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import com.github.dockerunit.core.annotation.ExtensionMarker;
+import com.github.dockerunit.core.annotation.Svc;
+import com.github.dockerunit.discovery.consul.annotation.impl.UseConsulDnsExtensionInterpreter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.github.dockerunit.annotation.ExtensionMarker;
-import com.github.dockerunit.annotation.Svc;
-import com.github.dockerunit.discovery.consul.annotation.impl.UseConsulDnsExtensionInterpreter;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Tells dockerunit to set consul as primary dns for the containers that are created from

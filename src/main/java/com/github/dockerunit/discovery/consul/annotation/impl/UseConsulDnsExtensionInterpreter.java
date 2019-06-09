@@ -2,10 +2,10 @@ package com.github.dockerunit.discovery.consul.annotation.impl;
 
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerunit.annotation.ExtensionInterpreter;
+import com.github.dockerunit.core.annotation.ExtensionInterpreter;
+import com.github.dockerunit.core.internal.ServiceDescriptor;
 import com.github.dockerunit.discovery.consul.ContainerUtils;
 import com.github.dockerunit.discovery.consul.annotation.UseConsulDns;
-import com.github.dockerunit.internal.ServiceDescriptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;

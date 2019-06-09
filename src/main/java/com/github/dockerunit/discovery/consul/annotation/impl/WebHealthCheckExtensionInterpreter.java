@@ -1,13 +1,13 @@
 package com.github.dockerunit.discovery.consul.annotation.impl;
 
+import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerunit.core.annotation.ExtensionInterpreter;
+import com.github.dockerunit.core.internal.ServiceDescriptor;
+import com.github.dockerunit.discovery.consul.annotation.WebHealthCheck;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.github.dockerjava.api.command.CreateContainerCmd;
-import com.github.dockerunit.annotation.ExtensionInterpreter;
-import com.github.dockerunit.discovery.consul.annotation.WebHealthCheck;
-import com.github.dockerunit.internal.ServiceDescriptor;
 
 public class WebHealthCheckExtensionInterpreter implements ExtensionInterpreter<WebHealthCheck> {
 

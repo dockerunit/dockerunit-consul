@@ -1,6 +1,6 @@
 package com.github.dockerunit.discovery.consul;
 
-import com.github.dockerunit.annotation.WithSvc;
+import com.github.dockerunit.core.annotation.WithSvc;
 
 import static com.github.dockerunit.discovery.consul.ConsulDiscoveryConfig.CONSUL_CONTAINER_NAME;
 

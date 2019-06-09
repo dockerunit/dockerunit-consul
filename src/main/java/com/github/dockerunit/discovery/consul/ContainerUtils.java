@@ -4,7 +4,7 @@ import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ContainerNetwork;
 import com.github.dockerjava.api.model.ContainerNetworkSettings;
 import com.github.dockerjava.api.model.NetworkSettings;
-import com.github.dockerunit.internal.docker.DefaultDockerClientProvider;
+import com.github.dockerunit.core.internal.docker.DefaultDockerClientProvider;
 
 import java.util.Arrays;
 import java.util.Map;
