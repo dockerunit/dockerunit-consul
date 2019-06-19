@@ -25,8 +25,8 @@
   <properties>
     <lombok.version>1.18.16</lombok.version>
     <jackson.version>2.11.3</jackson.version>
-    <docker-java.version>3.1.5</docker-java.version>
-    <httpclient.version>4.5.6</httpclient.version>
+    <docker-java.version>3.2.7</docker-java.version>
+    <httpclient.version>4.5.12</httpclient.version>
     <httpcore.version>4.4.13</httpcore.version>
   </properties>
 
@@ -68,7 +68,12 @@
     </dependency>
     <dependency>
       <groupId>com.github.docker-java</groupId>
-      <artifactId>docker-java</artifactId>
+      <artifactId>docker-java-api</artifactId>
+      <version>${docker-java.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.docker-java</groupId>
+      <artifactId>docker-java-core</artifactId>
       <version>${docker-java.version}</version>
     </dependency>
     <dependency>
