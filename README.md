@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdockerunit%2Fdockerunit-consul.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdockerunit%2Fdockerunit-consul?ref=badge_shield)
+
 dockerunit-consul - A Consul based discovery provider for Dockerunit
 ===========================================================================
 
@@ -51,3 +53,7 @@ by using the `service-b.service.consul` name.
 - `service-b` is not declaring any `@PortBinding` because our test does not need to talk to it.
 Only `service-a` will talk to it, but it can do it by using the container IP to which 
 the `service-b.service.consul` name resolves to.  
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fdockerunit%2Fdockerunit-consul.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fdockerunit%2Fdockerunit-consul?ref=badge_large)
