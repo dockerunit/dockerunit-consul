@@ -27,7 +27,7 @@
     <jackson.version>2.9.8</jackson.version>
     <docker-java.version>3.1.5</docker-java.version>
     <httpclient.version>4.5.6</httpclient.version>
-    <httpcore.version>4.4.11</httpcore.version>
+    <httpcore.version>4.4.12</httpcore.version>
   </properties>
 
   <dependencyManagement>
