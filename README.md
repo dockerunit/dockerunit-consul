@@ -30,7 +30,7 @@ Usage (set `dockerunit.consul.version` property to the version you intend to use
 <dependency>
   <groupId>com.github.dockerunit</groupId>
   <artifactId>dockerunit-consul</artifactId>
-  <version>${dockerunit.consul.version}</version>
+  <version>${dockerunit.version}</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -44,7 +44,7 @@ able to accept TCP connections.
 when it returns a 200 HTTP status code.
 - `@UseConsulDns`: Injects the Consul container IP as a DNS server for your container(s). This allows
 your services to reference other services by using their `dockerunit name`, which is the value
-that you have set in the corresponding `@Named` annotation.
+that you have set in the corresponding `@Svc` annotation.
 
 The last annotation can be better explained with an example.
 
@@ -55,10 +55,9 @@ Both services listen on port `8080`.
 Hereafter the dockerunit descriptors for the two services:
 
 ```java
-@Named("service-a")
-@Image("service-a-image")
+@Svc(name="service-a", image="service-a-image")
 @WebHealthCheck(port=8080)
-@PortBinding(exposedPort=8080, hostPort=8080)
+@PublishPort(host=8080, container=8080)
 @UseConsulDns
 public class DescriptorForA{}
 
@@ -69,6 +68,6 @@ public class DescriptorForB{}
 ```
 - Because `service-a` is using `@UseConsulDns`, it can reference `service-b`
 by using the `service-b.service.consul` name.
-- `service-b` is not declaring any `@PortBinding` because our test does not need to talk to it.
+- `service-b` is not declaring any `@PublishPort` because our test does not need to talk to it.
 Only `service-a` will talk to it, but it can do it by using the container IP to which
 the `service-b.service.consul` name resolves to.
