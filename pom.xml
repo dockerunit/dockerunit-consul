@@ -1,83 +1,128 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.github.dockerunit</groupId>
     <artifactId>dockerunit-parent</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>0.1.0</version>
+    <relativePath/>
   </parent>
 
   <artifactId>dockerunit-consul</artifactId>
-  <version>2.0.0-SNAPSHOT</version>
 
-  <name>dockerunit-consul</name>
   <description>Java Framework for testing of dockerised applications and services. Consul based service discovery package.</description>
   <url>https://github.com/dockerunit/dockerunit-consul</url>
-  
-  <developers>
-    <developer>
-      <name>Quirino Zagarese</name>
-    </developer>
-    <developer>
-      <name>Pedro Nuno Santos</name>
-    </developer>
-    <developer>
-      <name>Vincenzo Candela</name>
-    </developer>
-    <developer>
-      <name>Francesco Sorice</name>
-    </developer>
-  </developers>
+
+  <scm>
+    <connection>scm:https://github.com/dockerunit/dockerunit-consul.git</connection>
+    <developerConnection>scm:https://github.com/dockerunit/dockerunit-consul.git</developerConnection>
+    <url>https://github.com/dockerunit/dockerunit-consul.git</url>
+  </scm>
+
   <properties>
-    <dockerunit.core.version>2.0.0-SNAPSHOT</dockerunit.core.version>
-    <lombok.version>1.16.6</lombok.version>
+    <lombok.version>1.18.8</lombok.version>
+    <jackson.version>2.9.8</jackson.version>
+    <docker-java.version>3.1.5</docker-java.version>
+    <httpclient.version>4.5.6</httpclient.version>
+    <httpcore.version>4.4.11</httpcore.version>
   </properties>
 
-  <licenses>
-    <license>
-      <name>The Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
-    <dependency>
-      <groupId>com.github.dockerunit</groupId>
-      <artifactId>dockerunit-core</artifactId>
-      <version>${dockerunit.core.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>${lombok.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>dockerunit-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.docker-java</groupId>
+      <artifactId>docker-java</artifactId>
+      <version>${docker-java.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>${httpcore.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>${httpclient.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>ossrh-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
-
       <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
-
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
       </plugin>
-
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
       </plugin>
-
-      <plugin>
-        <artifactId>maven-gpg-plugin</artifactId>
-      </plugin>
     </plugins>
   </build>
-  
+
 </project>
