@@ -1,26 +1,23 @@
 package com.github.dockerunit.discovery.consul;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.model.Container;
-import org.apache.http.HttpResponse;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.conn.HttpHostConnectException;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.model.Container;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 public class ConsulRegistrator {
 
@@ -40,7 +37,6 @@ public class ConsulRegistrator {
     private final int port;
     private final ObjectWriter objectWriter;
     private final ConsulServiceFactory svcFactory;
-
 
     public ConsulRegistrator(DockerClient client, int pollingPeriod, String consulHost, int consulPort) {
         this.client = client;
@@ -65,7 +61,7 @@ public class ConsulRegistrator {
     }
 
     private void onDestroyHook(Container container) {
-        if(container != null && services.containsKey(container.getId())) {
+        if (container != null && services.containsKey(container.getId())) {
             deregisterSvc(services.get(container.getId()));
             trackers.remove(container.getId());
             services.remove(container.getId());
@@ -77,7 +73,7 @@ public class ConsulRegistrator {
         try {
             executePut("/v1/agent/service/register", objectWriter.writeValueAsString(svc),
                     errorMessage,
-                    ex ->  {
+                    ex -> {
                         throw new RuntimeException(errorMessage.get(), ex);
                     });
         } catch (JsonProcessingException e) {
@@ -86,18 +82,22 @@ public class ConsulRegistrator {
     }
 
     private void deregisterSvc(ConsulService svc) {
-        Supplier<String> errorMessage = () ->"Could not deregister container " + svc.getContainerId() + " from Consul.";
+        Supplier<String> errorMessage = () -> "Could not deregister container " + svc.getContainerId()
+                + " from Consul.";
         executePut("/v1/agent/service/deregister/" + svc.getId(), null,
                 errorMessage,
                 ex -> logger.info("Consul has already stopped. Service de-registration aborted."));
     }
 
-    private void executePut(String endpoint, String body, Supplier<String> errorMessage, Consumer<Exception> onFailure) {
+    private void executePut(String endpoint,
+            String body,
+            Supplier<String> errorMessage,
+            Consumer<Exception> onFailure) {
         HttpPut put = new HttpPut("http://" + host + ":" + port + endpoint);
         put.setHeader(ACCEPT, APPLICATION_JSON);
         put.setHeader(CONTENT_TYPE, APPLICATION_JSON);
 
-        if(body != null) {
+        if (body != null) {
             try {
                 put.setEntity(new StringEntity(body));
             } catch (UnsupportedEncodingException e) {

@@ -1,17 +1,18 @@
 package com.github.dockerunit.discovery.consul;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerunit.discovery.consul.annotation.TCPHealthCheck;
-import com.github.dockerunit.discovery.consul.annotation.WebHealthCheck;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerunit.discovery.consul.annotation.TCPHealthCheck;
+import com.github.dockerunit.discovery.consul.annotation.WebHealthCheck;
 
 public class ConsulServiceFactory {
 
@@ -21,7 +22,8 @@ public class ConsulServiceFactory {
             + "health-check by using @" + WebHealthCheck.class.getSimpleName()
             + " or @" + TCPHealthCheck.class.getSimpleName();
 
-    private static final String SVC_HEALTH_CHECK_PORT_NOT_FOUND_MSG = "No health-check port definition detected" + DEFINE_HEALTH_CHECK_MSG;
+    private static final String SVC_HEALTH_CHECK_PORT_NOT_FOUND_MSG =
+            "No health-check port definition detected" + DEFINE_HEALTH_CHECK_MSG;
     private static final String SVC_NAME_NOT_FOUND_ERROR_MSG = "No svc name detected. " + DEFINE_HEALTH_CHECK_MSG;
 
     private static final String DOCKERUNIT = "dockerunit";
@@ -42,13 +44,19 @@ public class ConsulServiceFactory {
         InspectContainerResponse r = client.inspectContainerCmd(containerId).exec();
 
         Map<String, String> options = buildKeyValueMap(r.getConfig().getLabels(), r.getConfig().getEnv());
-        String svcName = null;
+
+        String svcName;
         try {
-            svcName = URLEncoder.encode(findName(options).orElseThrow(() -> new RuntimeException(SVC_NAME_NOT_FOUND_ERROR_MSG)), "UTF-8");
+            svcName = URLEncoder.encode(
+                    findName(options).orElseThrow(() -> new RuntimeException(SVC_NAME_NOT_FOUND_ERROR_MSG)),
+                    StandardCharsets.UTF_8.name()
+            );
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Invalid svc name detected.", e);
         }
-        Integer port = extractHealthCheckPort(options).orElseThrow(() -> new RuntimeException(SVC_HEALTH_CHECK_PORT_NOT_FOUND_MSG));
+
+        Integer port = extractHealthCheckPort(options)
+                .orElseThrow(() -> new RuntimeException(SVC_HEALTH_CHECK_PORT_NOT_FOUND_MSG));
         String address = ContainerUtils.extractBridgeIpAddress(r.getNetworkSettings())
                 .orElseThrow(() -> new RuntimeException(SVC_ADDRESS_NOT_FOUND_ERROR_MSG));
 
@@ -63,10 +71,10 @@ public class ConsulServiceFactory {
     }
 
     private Map<String, String> buildKeyValueMap(Map<String, String> labels, String[] env) {
-        if(env == null) {
+        if (env == null) {
             return labels != null ? labels : new HashMap<>();
         }
-        if(labels == null) {
+        if (labels == null) {
             return new HashMap<>();
         }
         Map<String, String> keyValueMap = labels.entrySet()
@@ -83,8 +91,9 @@ public class ConsulServiceFactory {
         ConsulService.ConsulCheck.ConsulCheckBuilder builder = ConsulService.ConsulCheck.builder();
         builder.interval(options.get(SERVICE_CHECK_INTERVAL));
         builder.http(interpolateCheckScript(
-                options.getOrDefault(SERVICE_CHECK_HTTP, null), address, port));
-        builder.tcp(interpolateCheckScript(options.getOrDefault(SERVICE_CHECK_TCP, null), address,port));
+                options.getOrDefault(SERVICE_CHECK_HTTP, null), address, port)
+        );
+        builder.tcp(interpolateCheckScript(options.getOrDefault(SERVICE_CHECK_TCP, null), address, port));
         builder.method(options.getOrDefault(SERVICE_CHECK_METHOD, null));
         builder.tlsSkipVerify(true);
         builder.status(options.getOrDefault(SERVICE_CHECK_INITIAL_STATUS, null));
@@ -99,10 +108,10 @@ public class ConsulServiceFactory {
 
     private Optional<Integer> extractHealthCheckPort(Map<String, String> options) {
         return options.entrySet().stream()
-                .filter(kv -> hasServiceName(kv))
+                .filter(this::hasServiceName)
                 .findFirst()
                 .map(kv -> extractPortString(kv.getKey()))
-                .map(port -> asInteger(port));
+                .map(this::asInteger);
     }
 
     private Integer asInteger(String port) {
@@ -115,9 +124,9 @@ public class ConsulServiceFactory {
 
     private Optional<String> findName(Map<String, String> options) {
         return options.entrySet().stream()
-                    .filter(kv -> hasServiceName(kv))
-                    .findFirst()
-                    .map(kv -> kv.getValue());
+                .filter(this::hasServiceName)
+                .findFirst()
+                .map(Map.Entry::getValue);
     }
 
     private boolean hasServiceName(Map.Entry<String, String> kv) {
@@ -126,7 +135,7 @@ public class ConsulServiceFactory {
     }
 
     private String extractPortString(String s) {
-        if (! (s.lastIndexOf("_") > (s.indexOf("_") + 1))) {
+        if (!(s.lastIndexOf("_") > (s.indexOf("_") + 1))) {
             return null;
         }
         return s.substring(s.indexOf("_") + 1, s.lastIndexOf("_"));
