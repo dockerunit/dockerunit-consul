@@ -71,3 +71,7 @@ by using the `service-b.service.consul` name.
 - `service-b` is not declaring any `@PublishPort` because our test does not need to talk to it.
 Only `service-a` will talk to it, but it can do it by using the container IP to which
 the `service-b.service.consul` name resolves to.
+
+---
+By default, the `dockerunit-consul` module uses Consul Docker image from DockerHub.
+To override the default using a different Consul Docker image the System property `consul.image` can be provided.

@@ -6,6 +6,19 @@ and this project adheres to [semantic versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+
+## 0.1.1 [11 Nov 2020]
+
+### Changed
+
+- Bumped `lombok` to version `1.8.16`;
+- Bumped `jackson` to version `2.11.3`;
+- Bumped `httpcore` to version `4.4.13`;
+- Introduced new system property called `consul.image` for overriding the default DockerHub Consul image;
+- Minor formatting changes.
+
+## 0.1.0 [01 Mar 2019]
+
 ### Changed
 
 - Bump docker-java to 3.1.1
@@ -19,13 +32,4 @@ and this project adheres to [semantic versioning](https://semver.org/spec/v2.0.0
 
 - Goodbye to gliderlabs/registrator
 - Goodbye to `qzagarese` in package names :-) 
-
-## 1.0.1 [01 Mar 2019]
-
-### Added
-
-- New boolean flag `-Dconsul.dns.enabled` to disable consul DNS (fixes [#12](https://github.com/qzagarese/dockerunit/issues/12)) 
-
-## 1.0.0 [06 Feb 2019]
-
-_Initial Release_
+- New boolean flag `-Dconsul.dns.enabled` to disable Consul DNS (fixes [#12](https://github.com/qzagarese/dockerunit/issues/12)) 
