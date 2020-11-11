@@ -1,19 +1,21 @@
 package com.github.dockerunit.discovery.consul;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ContainerNetwork;
 import com.github.dockerjava.api.model.ContainerNetworkSettings;
 import com.github.dockerjava.api.model.NetworkSettings;
 import com.github.dockerunit.core.internal.docker.DefaultDockerClientProvider;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContainerUtils {
 
     private static final com.github.dockerjava.api.DockerClient dockerClient = new DefaultDockerClientProvider().getClient();
-
 
     public static Optional<String> extractBridgeIpAddress(ContainerNetworkSettings settings) {
         return extractIp(settings.getNetworks());
@@ -29,21 +31,19 @@ public class ContainerUtils {
                 .map(Map.Entry::getValue)
                 .filter(bindings -> bindings != null && bindings.length > 0)
                 .findFirst()
-                .flatMap(bindings ->  parsePort(bindings[0].getHostPortSpec()));
+                .flatMap(bindings -> parsePort(bindings[0].getHostPortSpec()));
     }
 
     public static Container getConsulContainer() {
         return dockerClient.listContainersCmd().exec().stream()
-                .filter(c -> isConsul(c))
+                .filter(ContainerUtils::isConsul)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(("Could not detect the Consul container.")));
     }
 
-
     private static boolean isConsul(Container c) {
-        return Arrays.stream(c.getNames()).anyMatch(s -> s.equals("/" + ConsulDiscoveryConfig.CONSUL_CONTAINER_NAME));
+        return Arrays.asList(c.getNames()).contains("/" + ConsulDiscoveryConfig.CONSUL_CONTAINER_NAME);
     }
-
 
     private static Optional<String> extractIp(Map<String, ContainerNetwork> networks) {
         return Optional.ofNullable(networks.entrySet().stream()
@@ -61,4 +61,5 @@ public class ContainerUtils {
             return Optional.empty();
         }
     }
+
 }
