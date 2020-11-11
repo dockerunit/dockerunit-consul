@@ -5,9 +5,9 @@ import com.github.dockerunit.core.discovery.DiscoveryProviderFactory;
 
 public class ConsulDiscoveryProviderFactory implements DiscoveryProviderFactory {
 
-	@Override
-	public DiscoveryProvider getProvider() {
-		return new ConsulDiscoveryProvider();
-	}
+    @Override
+    public DiscoveryProvider getProvider() {
+        return new ConsulDiscoveryProvider();
+    }
 
 }
