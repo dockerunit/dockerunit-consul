@@ -100,8 +100,11 @@ public class ConsulDiscoveryProvider implements DiscoveryProvider {
         Set<ServiceInstance> withPorts = s.getInstances().stream()
                 .map(si -> {
                     InspectContainerResponse r = dockerClient.inspectContainerCmd(si.getContainerId()).exec();
-                    return si.withPort(findPort(r, records).orElse(0))
-                            .withIp(DOCKER_HOST)
+                    return si.withGatewayPort(findPort(r, records).orElse(0))
+                            .withContainerPort(records.stream().findFirst().map(sr -> sr.getPort()).orElse(0))
+                            .withGatewayAddress(DOCKER_HOST)
+                            .withContainerName(r.getName())
+                            .withContainerIp(ContainerUtils.extractBridgeIpAddress(r.getNetworkSettings()).orElse(""))
                             .withStatus(ServiceInstance.Status.DISCOVERED)
                             .withStatusDetails("Discovered via consul");
                 }).collect(Collectors.toSet());
