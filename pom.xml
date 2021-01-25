@@ -75,6 +75,7 @@
       <groupId>com.github.docker-java</groupId>
       <artifactId>docker-java-core</artifactId>
       <version>${docker-java.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
