@@ -23,7 +23,7 @@
   </scm>
 
   <properties>
-    <lombok.version>1.18.16</lombok.version>
+    <lombok.version>1.18.18</lombok.version>
     <jackson.version>2.11.3</jackson.version>
     <docker-java.version>3.2.7</docker-java.version>
     <httpclient.version>4.5.12</httpclient.version>
